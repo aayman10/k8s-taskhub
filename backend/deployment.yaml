@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskhub-backend
+  namespace: taskhub
+  labels:
+    app: taskhub
+    component: backend
+    environment: lab
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskhub
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: taskhub
+        component: backend
+        environment: lab
+    spec:
+      containers:
+        - name: backend
+          image: nginx:1.27-alpine
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: taskhub-config
+          env:
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: taskhub-secret
+                  key: DATABASE_USERNAME
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: taskhub-secret
+                  key: DATABASE_PASSWORD
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            periodSeconds: 10
+            failureThreshold: 3

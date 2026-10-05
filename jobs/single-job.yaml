@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: taskhub-single-job
+  namespace: taskhub
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: task
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - echo "TaskHub single execution completed"
+  backoffLimit: 2
+
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: taskhub-parallel-job
+  namespace: taskhub
+spec:
+  parallelism: 3
+  completions: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: task
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - echo "Parallel worker executed"
+  backoffLimit: 2
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: taskhub-multi-completion-job
+  namespace: taskhub
+spec:
+  parallelism: 2
+  completions: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: task
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - echo "Independent task completed"
+  backoffLimit: 2
