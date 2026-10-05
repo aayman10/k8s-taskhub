@@ -1,0 +1,4 @@
+*.pem
+*.key
+.env
+github_pat_*
